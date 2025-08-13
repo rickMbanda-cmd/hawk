@@ -44,16 +44,16 @@ const Register = () => {
         lastName: formData.lastName,
         email: formData.email,
         password: formData.password,
-        userType: formData.userType,
+        role: formData.userType,
         ...(formData.userType === 'employer' && { companyName: formData.companyName })
       };
 
-      await authService.register(registrationData);
+      const response = await authService.register(registrationData);
 
-      // Redirect based on user type
-      if (formData.userType === 'candidate') {
+      // Redirect based on user role from server response
+      if (response.user.role === 'candidate') {
         navigate('/candidate-dashboard');
-      } else if (formData.userType === 'employer') {
+      } else if (response.user.role === 'employer') {
         navigate('/employer-dashboard');
       }
     } catch (err) {
