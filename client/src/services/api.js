@@ -4,7 +4,7 @@ import axios from 'axios';
 // Configure base URL for API calls
 const API_BASE_URL = process.env.NODE_ENV === 'production' 
   ? 'https://your-replit-url.replit.dev'  // Replace with your actual Replit URL
-  : 'http://localhost:5001';
+  : 'http://localhost:5000';
 
 // Create axios instance with default config
 const api = axios.create({
