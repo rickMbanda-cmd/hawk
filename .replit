@@ -1,11 +1,11 @@
 modules = ["nodejs-20", "web"]
-run = "npm install"
+run = "node index.js"
 
 [nix]
 channel = "stable-25_05"
 
 [deployment]
-run = ["sh", "-c", "npm install"]
+run = ["sh", "-c", "node index.js"]
 
 [workflows]
 runButton = "Full Stack Dev"
