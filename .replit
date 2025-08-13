@@ -1,0 +1,41 @@
+modules = ["nodejs-20", "web"]
+run = "npm install"
+
+[nix]
+channel = "stable-25_05"
+
+[deployment]
+run = ["sh", "-c", "npm install"]
+
+[workflows]
+runButton = "Full Stack Dev"
+
+[[workflows.workflow]]
+name = "Backend Server"
+author = 46324192
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd CoreNova && npm install && node index.js"
+
+[[workflows.workflow]]
+name = "Full Stack Dev"
+author = 46324192
+mode = "parallel"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd CoreNova && node index.js"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd client && npm start"
+
+[[ports]]
+localPort = 3000
+externalPort = 3000
+
+[[ports]]
+localPort = 5001
+externalPort = 80
