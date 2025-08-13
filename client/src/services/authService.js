@@ -2,20 +2,56 @@
 import api from './api';
 
 class AuthService {
+  // Store token in localStorage
+  setToken(token) {
+    localStorage.setItem('token', token);
+  }
+
+  // Get token from localStorage
+  getToken() {
+    return localStorage.getItem('token');
+  }
+
+  // Remove token from localStorage
+  removeToken() {
+    localStorage.removeItem('token');
+  }
+
+  // Store user data in localStorage
+  setUser(user) {
+    localStorage.setItem('user', JSON.stringify(user));
+  }
+
+  // Get user data from localStorage
+  getUser() {
+    const user = localStorage.getItem('user');
+    return user ? JSON.parse(user) : null;
+  }
+
+  // Remove user data from localStorage
+  removeUser() {
+    localStorage.removeItem('user');
+  }
+
+  // Check if user is authenticated
+  isAuthenticated() {
+    const token = this.getToken();
+    const user = this.getUser();
+    return !!(token && user);
+  }
+
   // Register new user
   async register(userData) {
     try {
       const response = await api.post('/auth/register', userData);
-      const { user, token } = response.data;
+      const { token, user } = response.data;
       
-      if (token) {
-        localStorage.setItem('token', token);
-        localStorage.setItem('user', JSON.stringify(user));
-      }
+      this.setToken(token);
+      this.setUser(user);
       
-      return { user, token };
+      return response.data;
     } catch (error) {
-      throw new Error(error.response?.data?.message || 'Registration failed');
+      throw error;
     }
   }
 
@@ -23,16 +59,14 @@ class AuthService {
   async login(credentials) {
     try {
       const response = await api.post('/auth/login', credentials);
-      const { user, token } = response.data;
+      const { token, user } = response.data;
       
-      if (token) {
-        localStorage.setItem('token', token);
-        localStorage.setItem('user', JSON.stringify(user));
-      }
+      this.setToken(token);
+      this.setUser(user);
       
-      return { user, token };
+      return response.data;
     } catch (error) {
-      throw new Error(error.response?.data?.message || 'Login failed');
+      throw error;
     }
   }
 
@@ -41,44 +75,23 @@ class AuthService {
     try {
       await api.post('/auth/logout');
     } catch (error) {
-      console.error('Logout error:', error);
+      // Continue with logout even if API call fails
+      console.warn('Logout API call failed:', error);
     } finally {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
+      this.removeToken();
+      this.removeUser();
     }
   }
 
-  // Get current user from localStorage
-  getCurrentUser() {
+  // Get current user from server
+  async getCurrentUser() {
     try {
-      const userStr = localStorage.getItem('user');
-      return userStr ? JSON.parse(userStr) : null;
-    } catch (error) {
-      console.error('Error getting current user:', error);
-      return null;
-    }
-  }
-
-  // Check if user is authenticated
-  isAuthenticated() {
-    const token = localStorage.getItem('token');
-    const user = this.getCurrentUser();
-    return !!(token && user);
-  }
-
-  // Get auth token
-  getToken() {
-    return localStorage.getItem('token');
-  }
-
-  // Verify token with backend
-  async verifyToken() {
-    try {
-      const response = await api.get('/auth/verify');
+      const response = await api.get('/auth/me');
       return response.data.user;
     } catch (error) {
-      this.logout();
-      return null;
+      this.removeToken();
+      this.removeUser();
+      throw error;
     }
   }
 }

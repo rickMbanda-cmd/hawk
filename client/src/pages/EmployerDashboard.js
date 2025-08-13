@@ -1,9 +1,16 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import authService from '../services/authService';
 import './EmployerDashboard.css';
 
 const EmployerDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    // Get user data from localStorage or service
+    const userData = authService.getUser();
+    setUser(userData);
+  }, []);
 
   const jobPostings = [
     {
@@ -83,7 +90,7 @@ const EmployerDashboard = () => {
         <div className="container">
           <div className="header-content">
             <div className="company-welcome">
-              <h1>Welcome back, TechCorp!</h1>
+              <h1>Welcome back, {user ? user.companyName || user.firstName : 'Company'}!</h1>
               <p>Manage your hiring pipeline and find the best talent</p>
             </div>
             <div className="quick-actions">

@@ -1,6 +1,6 @@
-
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import authService from '../../services/authService';
 import './Auth.css';
 
 const Register = () => {
@@ -12,8 +12,11 @@ const Register = () => {
     password: '',
     confirmPassword: '',
     userType: 'candidate',
+    companyName: '',
     agreeToTerms: false
   });
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -23,23 +26,41 @@ const Register = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
+    setError('');
+    setLoading(true);
+
     // Validate passwords match
     if (formData.password !== formData.confirmPassword) {
-      alert('Passwords do not match');
+      setError('Passwords do not match');
+      setLoading(false);
       return;
     }
 
-    // Here you would normally make an API call to register the user
-    console.log('Register submitted:', formData);
-    
-    // Redirect based on user type
-    if (formData.userType === 'candidate') {
-      navigate('/candidate-dashboard');
-    } else if (formData.userType === 'employer') {
-      navigate('/employer-dashboard');
+    try {
+      const registrationData = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        password: formData.password,
+        userType: formData.userType,
+        ...(formData.userType === 'employer' && { companyName: formData.companyName })
+      };
+
+      await authService.register(registrationData);
+
+      // Redirect based on user type
+      if (formData.userType === 'candidate') {
+        navigate('/candidate-dashboard');
+      } else if (formData.userType === 'employer') {
+        navigate('/employer-dashboard');
+      }
+    } catch (err) {
+      console.error('Registration failed:', err);
+      setError(err.response?.data?.message || 'Registration failed. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -90,6 +111,23 @@ const Register = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="auth-form">
+            {error && <div className="error-message">{error}</div>}
+
+            {formData.userType === 'employer' && (
+              <div className="form-group">
+                <label htmlFor="companyName">Company Name</label>
+                <input
+                  type="text"
+                  id="companyName"
+                  name="companyName"
+                  value={formData.companyName}
+                  onChange={handleChange}
+                  placeholder="Enter your company name"
+                  required
+                />
+              </div>
+            )}
+
             <div className="form-row">
               <div className="form-group">
                 <label htmlFor="firstName">First Name</label>
@@ -171,8 +209,8 @@ const Register = () => {
               </label>
             </div>
 
-            <button type="submit" className="auth-button">
-              Create Account
+            <button type="submit" className="auth-button" disabled={loading}>
+              {loading ? 'Creating Account...' : 'Create Account'}
             </button>
           </form>
 

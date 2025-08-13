@@ -1,9 +1,16 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import authService from '../services/authService';
 import './CandidateDashboard.css';
 
 const CandidateDashboard = () => {
   const [activeTab, setActiveTab] = useState('overview');
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    // Get user data from localStorage or service
+    const userData = authService.getUser();
+    setUser(userData);
+  }, []);
 
   const recentApplications = [
     {
@@ -66,7 +73,7 @@ const CandidateDashboard = () => {
         <div className="container">
           <div className="header-content">
             <div className="user-welcome">
-              <h1>Welcome back, John!</h1>
+              <h1>Welcome back, {user ? user.firstName : 'User'}!</h1>
               <p>Ready to find your next opportunity?</p>
             </div>
             <div className="profile-completion">
@@ -269,9 +276,9 @@ const CandidateDashboard = () => {
                 <div className="profile-section">
                   <h3>Personal Information</h3>
                   <div className="form-grid">
-                    <input type="text" placeholder="First Name" />
-                    <input type="text" placeholder="Last Name" />
-                    <input type="email" placeholder="Email" />
+                    <input type="text" placeholder="First Name" value={user ? user.firstName : ''}/>
+                    <input type="text" placeholder="Last Name" value={user ? user.lastName : ''}/>
+                    <input type="email" placeholder="Email" value={user ? user.email : ''}/>
                     <input type="tel" placeholder="Phone" />
                   </div>
                 </div>

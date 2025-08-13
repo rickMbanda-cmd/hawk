@@ -25,6 +25,12 @@ const userSchema = new mongoose.Schema({
     enum: ['candidate', 'employer', 'admin'],
     default: 'candidate'
   },
+  companyName: {
+    type: String,
+    required: function() {
+      return this.role === 'employer';
+    }
+  },
   profile: {
     phone: String,
     location: String,

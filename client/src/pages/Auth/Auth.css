@@ -96,6 +96,16 @@
   color: #666;
 }
 
+.error-message {
+  background: #fee;
+  color: #c33;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  border: 1px solid #fcc;
+  text-align: center;
+}
+
 .auth-form {
   display: flex;
   flex-direction: column;

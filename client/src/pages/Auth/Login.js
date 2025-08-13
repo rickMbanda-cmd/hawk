@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import authService from '../../services/authService';
 import './Auth.css';
 
 const Login = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -27,7 +28,13 @@ const Login = () => {
     try {
       const response = await authService.login({ email: formData.email, password: formData.password });
       console.log('Login successful:', response);
-      // Handle successful login, e.g., redirect to dashboard, store token
+      
+      // Redirect based on user role
+      if (response.user.role === 'candidate') {
+        navigate('/candidate-dashboard');
+      } else if (response.user.role === 'employer') {
+        navigate('/employer-dashboard');
+      }
     } catch (err) {
       console.error('Login failed:', err);
       setError(err.response?.data?.message || 'An error occurred during login.');
